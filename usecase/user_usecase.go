@@ -33,6 +33,9 @@ func NewUserUsecase(userRepo repository.UserRepo, crypto helper.AppCrypto, jwt h
 func (uu *userUsecase) Register(ctx context.Context, user model.User) (dto.UserRes, error) {
 	res, err := uu.userRepo.CreateUser(ctx, user)
 	if err != nil {
+		if errors.Is(err, helper.ErrDuplicateKey) {
+			return dto.UserRes{}, helper.ErrDuplicateUser
+		}
 		return dto.UserRes{}, helper.ErrInternalServer
 	}
 	return dto.ConvUserToRes(res), nil

@@ -34,8 +34,6 @@ func ConnectDB() *gorm.DB {
 
 	db.AutoMigrate(model.User{}, model.Photo{}, model.Activity{})
 
-	var nextval int64
-	db.Raw("SELECT last_value FROM wallets_id_seq;").Scan(&nextval)
 	return db
 }
 

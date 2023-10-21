@@ -26,6 +26,9 @@ func NewUserRepo(db *gorm.DB) *usereRepo {
 
 func (ur *usereRepo) CreateUser(ctx context.Context, user model.User) (model.User, error) {
 	if err := ur.db.WithContext(ctx).Create(&user).Error; err != nil {
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			return model.User{}, helper.ErrDuplicateKey
+		}
 		return model.User{}, err
 	}
 	return user, nil
