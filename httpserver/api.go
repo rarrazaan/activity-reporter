@@ -19,7 +19,6 @@ import (
 
 	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
 func NewRouter(h *httphandler.HttpHandler) *gin.Engine {
@@ -35,6 +34,7 @@ func NewRouter(h *httphandler.HttpHandler) *gin.Engine {
 
 	user := r.Group("/users", middleware.Auth())
 	user.POST("/:id/post", h.PostPhoto)
+	r.POST("/forgot-password", h.ForgetPW)
 
 	r.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"message": "page not found"})
@@ -44,11 +44,10 @@ func NewRouter(h *httphandler.HttpHandler) *gin.Engine {
 }
 
 func main() {
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Printf("Error loading .env file: %s", err)
-	}
+	helper.LoadEnv()
 	db := dependency.ConnectDB()
+	rdb := dependency.NewRedisClient()
+	cld := dependency.NewCloudinary()
 
 	crypto := helper.NewAppCrypto()
 	jwt := helper.NewJwtTokenizer()
@@ -58,8 +57,9 @@ func main() {
 
 	uu := usecase.NewUserUsecase(ur, crypto, jwt)
 	pu := usecase.NewPhotoUsecase(pr)
+	ru := usecase.NewResetPWUsecase(rdb, ur)
 
-	h := httphandler.NewHttpHandler(uu, pu)
+	h := httphandler.NewHttpHandler(uu, pu, ru, cld)
 	router := NewRouter(h)
 	router.ContextWithFallback = true
 

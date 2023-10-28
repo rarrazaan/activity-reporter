@@ -2,12 +2,10 @@ package helper
 
 import (
 	"activity-reporter/shared/dto"
-	"log"
 	"os"
 	"time"
 
 	jwt "github.com/golang-jwt/jwt/v5"
-	"github.com/joho/godotenv"
 )
 
 type MyClaims struct {
@@ -26,10 +24,7 @@ func NewJwtTokenizer() *jwtTokenizer {
 }
 
 func (j *jwtTokenizer) GenerateToken(user dto.UserTokenDTO) (string, error) {
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Printf("Error loading .env file: %s", err)
-	}
+	LoadEnv()
 	mySigningKey := []byte(os.Getenv("JWT_KEY"))
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256,
 		MyClaims{
@@ -48,10 +43,7 @@ func (j *jwtTokenizer) GenerateToken(user dto.UserTokenDTO) (string, error) {
 }
 
 func ValidateJWT(tokenString string) (*jwt.Token, error) {
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Printf("Error loading .env file: %s", err)
-	}
+	LoadEnv()
 	return jwt.ParseWithClaims(tokenString, &MyClaims{}, func(t *jwt.Token) (interface{}, error) {
 		_, ok := t.Method.(*jwt.SigningMethodHMAC)
 		if !ok {

@@ -17,13 +17,15 @@ import (
 )
 
 var (
-	mockUserUsecase  *mocks.UserUsecase
-	mockPhotoUsecase *mocks.PhotoUsecase
+	mockUserUsecase    *mocks.UserUsecase
+	mockPhotoUsecase   *mocks.PhotoUsecase
+	mockResetPWUsecase *mocks.ResetPWUsecase
 )
 
 func Setup() {
 	mockUserUsecase = new(mocks.UserUsecase)
 	mockPhotoUsecase = new(mocks.PhotoUsecase)
+	mockResetPWUsecase = new(mocks.ResetPWUsecase)
 }
 
 func MakeRequestBody(dto interface{}) *strings.Reader {
@@ -35,7 +37,7 @@ func TestHttpHandler_Register(t *testing.T) {
 	assert := assert.New(t)
 	t.Run("should return 200 when successfully registered", func(t *testing.T) {
 		Setup()
-		h := httphandler.NewHttpHandler(mockUserUsecase, mockPhotoUsecase)
+		h := httphandler.NewHttpHandler(mockUserUsecase, mockPhotoUsecase, mockResetPWUsecase)
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 
@@ -71,7 +73,7 @@ func TestHttpHandler_Register(t *testing.T) {
 
 	t.Run("should return 500 when failed to create user", func(t *testing.T) {
 		Setup()
-		h := httphandler.NewHttpHandler(mockUserUsecase, mockPhotoUsecase)
+		h := httphandler.NewHttpHandler(mockUserUsecase, mockPhotoUsecase, mockResetPWUsecase)
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 

@@ -2,20 +2,15 @@ package middleware
 
 import (
 	"activity-reporter/shared/helper"
-	"log"
 	"net/http"
 	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
 func Auth() gin.HandlerFunc {
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Printf("Error loading .env file: %s", err)
-	}
+	helper.LoadEnv()
 	return func(c *gin.Context) {
 		if os.Getenv("APP_ENVIRONMENT") == "testing" {
 			c.Set("user_id", int64(1))

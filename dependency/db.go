@@ -2,20 +2,16 @@ package dependency
 
 import (
 	"activity-reporter/model"
+	"activity-reporter/shared/helper"
 	"fmt"
-	"log"
 	"os"
 
-	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 func ConnectDB() *gorm.DB {
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Printf("Error loading .env file: %s", err)
-	}
+	helper.LoadEnv()
 	var (
 		host     = os.Getenv("DB_HOST")
 		port     = os.Getenv("DB_PORT")
@@ -30,9 +26,9 @@ func ConnectDB() *gorm.DB {
 		return nil
 	}
 	// // UNCOMMENT WHEN TRYING TO RESET DB
-	Down(db)
+	// Down(db)
 
-	db.AutoMigrate(model.User{}, model.Photo{}, model.Activity{})
+	db.AutoMigrate(model.User{}, model.Photo{}, model.Activity{}, model.UserPhoto{})
 
 	return db
 }
