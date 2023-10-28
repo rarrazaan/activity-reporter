@@ -33,6 +33,9 @@ func NewRouter(h *httphandler.HttpHandler) *gin.Engine {
 	r.POST("/register", h.Register)
 	r.POST("/login", h.Login)
 
+	user := r.Group("/users", middleware.Auth())
+	user.POST("/:id/post", h.PostPhoto)
+
 	r.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"message": "page not found"})
 	})
@@ -51,9 +54,12 @@ func main() {
 	jwt := helper.NewJwtTokenizer()
 
 	ur := repository.NewUserRepo(db)
-	uu := usecase.NewUserUsecase(ur, crypto, jwt)
+	pr := repository.NewPhotoRepo(db)
 
-	h := httphandler.NewHttpHandler(uu)
+	uu := usecase.NewUserUsecase(ur, crypto, jwt)
+	pu := usecase.NewPhotoUsecase(pr)
+
+	h := httphandler.NewHttpHandler(uu, pu)
 	router := NewRouter(h)
 	router.ContextWithFallback = true
 

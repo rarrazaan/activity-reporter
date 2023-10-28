@@ -7,7 +7,8 @@ import (
 )
 
 type Photo struct {
-	ID      int64 `gorm:"primarykey"`
+	ID      int64  `gorm:"primarykey"`
+	Image   []byte `gorm:"not null"`
 	Caption string
 
 	UserID int64
