@@ -8,7 +8,7 @@ import (
 
 type Photo struct {
 	ID      int64  `gorm:"primarykey"`
-	Image   string `gorm:"not null;type:varchar"`
+	ImageUrl   string `gorm:"not null;type:varchar"`
 	Caption string
 
 	UserID int64

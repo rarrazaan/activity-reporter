@@ -33,12 +33,12 @@ func Test_userUsecase_Register(t *testing.T) {
 		Setup()
 		uu := usecase.NewUserUsecase(mockUserRepo, crypto, jwt)
 
-		user := model.User{
+		user := &model.User{
 			Name:     "Chitanda",
 			Email:    "chitanda@example.com",
 			Password: "password123",
 		}
-		userRegistered := model.User{
+		userRegistered := &model.User{
 			ID:       1,
 			Name:     "Chitanda",
 			Email:    "chitanda@example.com",
@@ -46,7 +46,7 @@ func Test_userUsecase_Register(t *testing.T) {
 		}
 
 		mockUserRepo.On("CreateUser", mock.Anything, user).Return(userRegistered, nil)
-		expected := dto.UserRes{
+		expected := &dto.UserRes{
 			ID:    1,
 			Name:  "Chitanda",
 			Email: "chitanda@example.com",
@@ -62,19 +62,17 @@ func Test_userUsecase_Register(t *testing.T) {
 		Setup()
 		uu := usecase.NewUserUsecase(mockUserRepo, crypto, jwt)
 
-		user := model.User{
+		user := &model.User{
 			Name:     "Chitanda",
 			Email:    "chitanda@example.com",
 			Password: "password123",
 		}
-		userRegistered := model.User{}
 
-		mockUserRepo.On("CreateUser", mock.Anything, user).Return(userRegistered, errors.New("error"))
-		expected := dto.UserRes{}
+		mockUserRepo.On("CreateUser", mock.Anything, user).Return(nil, errors.New("error"))
 
 		res, err := uu.Register(context.Background(), user)
 
-		assert.Equal(expected, res)
+		assert.Nil(res)
 		assert.ErrorIs(err, helper.ErrInternalServer)
 	})
 }
@@ -85,12 +83,12 @@ func Test_userUsecase_Login(t *testing.T) {
 		Setup()
 		uu := usecase.NewUserUsecase(mockUserRepo, crypto, jwt)
 
-		user := model.User{
+		user := &model.User{
 			Name:     "Chitanda",
 			Email:    "chitanda@example.com",
 			Password: "password123",
 		}
-		userExist := model.User{
+		userExist := &model.User{
 			ID:       1,
 			Name:     "Chitanda",
 			Email:    "chitanda@example.com",
@@ -100,8 +98,8 @@ func Test_userUsecase_Login(t *testing.T) {
 		mockUserRepo.On("FindUserByIdentifier", mock.Anything, user.Email).Return(userExist, nil)
 		crypto.On("ComparePasswords", user.Password, userExist.Password).Return(nil)
 		jwt.On("GenerateToken", dto.UserTokenDTO{ID: userExist.ID}).Return("token", nil)
-		expected := dto.LoginRes{
-			User: dto.UserRes{
+		expected := &dto.LoginRes{
+			User: &dto.UserRes{
 				ID:    1,
 				Name:  "Chitanda",
 				Email: "chitanda@example.com",
@@ -119,19 +117,17 @@ func Test_userUsecase_Login(t *testing.T) {
 		Setup()
 		uu := usecase.NewUserUsecase(mockUserRepo, crypto, jwt)
 
-		user := model.User{
+		user := &model.User{
 			Name:     "Chitanda",
 			Email:    "chitanda@example.com",
 			Password: "password12",
 		}
-		userExist := model.User{}
 
-		mockUserRepo.On("FindUserByIdentifier", mock.Anything, user.Email).Return(userExist, helper.ErrUserNotFound)
-		expected := dto.LoginRes{}
+		mockUserRepo.On("FindUserByIdentifier", mock.Anything, user.Email).Return(nil, helper.ErrUserNotFound)
 
 		res, err := uu.Login(context.Background(), user)
 
-		assert.Equal(expected, res)
+		assert.Nil(res)
 		assert.ErrorIs(err, helper.ErrCredential)
 	})
 
@@ -139,19 +135,17 @@ func Test_userUsecase_Login(t *testing.T) {
 		Setup()
 		uu := usecase.NewUserUsecase(mockUserRepo, crypto, jwt)
 
-		user := model.User{
+		user := &model.User{
 			Name:     "Chitanda",
 			Email:    "chitanda@example.com",
 			Password: "password12",
 		}
-		userExist := model.User{}
 
-		mockUserRepo.On("FindUserByIdentifier", mock.Anything, user.Email).Return(userExist, errors.New("error"))
-		expected := dto.LoginRes{}
+		mockUserRepo.On("FindUserByIdentifier", mock.Anything, user.Email).Return(nil, errors.New("error"))
 
 		res, err := uu.Login(context.Background(), user)
 
-		assert.Equal(expected, res)
+		assert.Nil(res)
 		assert.ErrorIs(err, helper.ErrInternalServer)
 	})
 
@@ -159,12 +153,12 @@ func Test_userUsecase_Login(t *testing.T) {
 		Setup()
 		uu := usecase.NewUserUsecase(mockUserRepo, crypto, jwt)
 
-		user := model.User{
+		user := &model.User{
 			Name:     "Chitanda",
 			Email:    "chitanda@example.com",
 			Password: "password12",
 		}
-		userExist := model.User{
+		userExist := &model.User{
 			ID:       1,
 			Name:     "Chitanda",
 			Email:    "chitanda@example.com",
@@ -173,11 +167,10 @@ func Test_userUsecase_Login(t *testing.T) {
 
 		mockUserRepo.On("FindUserByIdentifier", mock.Anything, user.Email).Return(userExist, nil)
 		crypto.On("ComparePasswords", user.Password, userExist.Password).Return(bcrypt.ErrMismatchedHashAndPassword)
-		expected := dto.LoginRes{}
 
 		res, err := uu.Login(context.Background(), user)
 
-		assert.Equal(expected, res)
+		assert.Nil(res)
 		assert.ErrorIs(err, helper.ErrCredential)
 	})
 
@@ -185,12 +178,12 @@ func Test_userUsecase_Login(t *testing.T) {
 		Setup()
 		uu := usecase.NewUserUsecase(mockUserRepo, crypto, jwt)
 
-		user := model.User{
+		user := &model.User{
 			Name:     "Chitanda",
 			Email:    "chitanda@example.com",
 			Password: "password123",
 		}
-		userExist := model.User{
+		userExist := &model.User{
 			ID:       1,
 			Name:     "Chitanda",
 			Email:    "chitanda@example.com",
@@ -200,11 +193,10 @@ func Test_userUsecase_Login(t *testing.T) {
 		mockUserRepo.On("FindUserByIdentifier", mock.Anything, user.Email).Return(userExist, nil)
 		crypto.On("ComparePasswords", user.Password, userExist.Password).Return(nil)
 		jwt.On("GenerateToken", dto.UserTokenDTO{ID: userExist.ID}).Return("", errors.New("error"))
-		expected := dto.LoginRes{}
 
 		res, err := uu.Login(context.Background(), user)
 
-		assert.Equal(expected, res)
+		assert.Nil(res)
 		assert.ErrorIs(err, helper.ErrGenerateToken)
 	})
 }

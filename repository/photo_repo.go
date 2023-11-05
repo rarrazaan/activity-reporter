@@ -12,7 +12,7 @@ type photoRepo struct {
 }
 
 type PhotoRepo interface {
-	AddPhoto(ctx context.Context, photo model.Photo) (model.Photo, error)
+	AddPhoto(ctx context.Context, photo *model.Photo) (*model.Photo, error)
 }
 
 func NewPhotoRepo(db *gorm.DB) *photoRepo {
@@ -21,10 +21,10 @@ func NewPhotoRepo(db *gorm.DB) *photoRepo {
 	}
 }
 
-func (pr *photoRepo) AddPhoto(ctx context.Context, photo model.Photo) (model.Photo, error) {
-	err := pr.db.WithContext(ctx).Create(&photo).Error
+func (pr *photoRepo) AddPhoto(ctx context.Context, photo *model.Photo) (*model.Photo, error) {
+	err := pr.db.WithContext(ctx).Create(photo).Error
 	if err != nil {
-		return model.Photo{}, err
+		return nil, err
 	}
 	return photo, nil
 }

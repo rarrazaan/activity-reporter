@@ -13,7 +13,7 @@ type photoUsecase struct {
 }
 
 type PhotoUsecase interface {
-	PostPhoto(ctx context.Context, photo model.Photo) (dto.PhotoRes, error)
+	PostPhoto(ctx context.Context, photo *model.Photo) (*dto.PhotoRes, error)
 }
 
 func NewPhotoUsecase(photoRepo repository.PhotoRepo) *photoUsecase {
@@ -22,10 +22,10 @@ func NewPhotoUsecase(photoRepo repository.PhotoRepo) *photoUsecase {
 	}
 }
 
-func (pu *photoUsecase) PostPhoto(ctx context.Context, photo model.Photo) (dto.PhotoRes, error) {
+func (pu *photoUsecase) PostPhoto(ctx context.Context, photo *model.Photo) (*dto.PhotoRes, error) {
 	res, err := pu.photoRepo.AddPhoto(ctx, photo)
 	if err != nil {
-		return dto.PhotoRes{}, helper.ErrInternalServer
+		return nil, helper.ErrInternalServer
 	}
 	return dto.ConvPhotoRes(res), nil
 }

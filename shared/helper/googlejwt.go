@@ -53,8 +53,6 @@ func getGooglePublicKey(keyID string) (string, error) {
 	return key, nil
 }
 
-// ValidateGoogleJWT -
-
 func (g *googleJWT) ValidateGoogleJWT(tokenString string) (GoogleClaims, error) {
 	claimsStruct := GoogleClaims{}
 	token, err := jwt.ParseWithClaims(

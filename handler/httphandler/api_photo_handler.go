@@ -14,13 +14,17 @@ import (
 func (h *HttpHandler) PostPhoto(c *gin.Context) {
 	var req dto.PhotoReq
 	userIDstr := c.Param("id")
-	userID, _ := strconv.Atoi(userIDstr)
+	userID, err := strconv.Atoi(userIDstr)
+	if err != nil {
+		c.Error(err)
+		return
+	}
 	userIDJWT := c.GetInt64("user_id")
 	if int64(userID) != userIDJWT {
 		c.Error(helper.ErrUnauthorizedUser)
 		return
 	}
-	err := c.ShouldBind(&req)
+	err = c.ShouldBind(&req)
 	if err != nil {
 		c.Error(err)
 		return
@@ -36,7 +40,7 @@ func (h *HttpHandler) PostPhoto(c *gin.Context) {
 		c.Error(err)
 		return
 	}
-	res, err := h.photoUsecase.PostPhoto(c, dto.ConvPhotoReq(req, resp.SecureURL, int64(userID)))
+	res, err := h.photoUsecase.PostPhoto(c, dto.ConvPhotoReq(&req, resp.SecureURL, int64(userID)))
 	if err != nil {
 		c.Error(err)
 		return

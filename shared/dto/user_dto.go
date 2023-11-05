@@ -14,16 +14,16 @@ type UserRes struct {
 	Email string `json:"email"`
 }
 
-func ConvURegisToModel(req RegisterReq) model.User {
-	return model.User{
+func ConvURegisToModel(req *RegisterReq) *model.User {
+	return &model.User{
 		Name:     req.Name,
 		Email:    req.Email,
 		Password: req.Password,
 	}
 }
 
-func ConvUserToRes(user model.User) UserRes {
-	return UserRes{
+func ConvUserToRes(user *model.User) *UserRes {
+	return &UserRes{
 		ID:    user.ID,
 		Name:  user.Name,
 		Email: user.Email,
@@ -36,12 +36,12 @@ type LoginReq struct {
 }
 
 type LoginRes struct {
-	User  UserRes
+	User  *UserRes
 	Token string
 }
 
-func ConvULoginToModel(req LoginReq) model.User {
-	return model.User{
+func ConvULoginToModel(req *LoginReq) *model.User {
+	return &model.User{
 		Email:    req.Email,
 		Password: req.Password,
 	}

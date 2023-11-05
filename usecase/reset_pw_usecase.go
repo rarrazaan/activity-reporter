@@ -6,7 +6,6 @@ import (
 	"activity-reporter/shared/helper"
 	"context"
 	"errors"
-	"log"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -42,18 +41,15 @@ func (ru *resetPWUsecase) ForgetPW(ctx context.Context, email string) (dto.Forge
 
 	op1 := ru.rdb.Set(ctx, key, token, ttl)
 	if err := op1.Err(); err != nil {
-		log.Println("ERR1", err)
 		return dto.ForgetPWRes{}, helper.ErrInternalServer
 	}
 
 	op2 := ru.rdb.Get(context.Background(), key)
 	if err := op2.Err(); err != nil {
-		log.Println("ERR2", err)
 		return dto.ForgetPWRes{}, helper.ErrInternalServer
 	}
 	res, err := op2.Result()
 	if err != nil {
-		log.Println("ERR3", err)
 		return dto.ForgetPWRes{}, helper.ErrInternalServer
 	}
 	return dto.ForgetPWRes{

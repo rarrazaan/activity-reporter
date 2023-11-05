@@ -13,7 +13,7 @@ func (h *HttpHandler) Register(c *gin.Context) {
 		c.Error(err)
 		return
 	}
-	res, err := h.userUseCase.Register(c, dto.ConvURegisToModel(req))
+	res, err := h.userUseCase.Register(c, dto.ConvURegisToModel(&req))
 	if err != nil {
 		c.Error(err)
 		return
@@ -27,7 +27,7 @@ func (h *HttpHandler) Login(c *gin.Context) {
 		c.Error(err)
 		return
 	}
-	res, err := h.userUseCase.Login(c, dto.ConvULoginToModel(req))
+	res, err := h.userUseCase.Login(c, dto.ConvULoginToModel(&req))
 	if err != nil {
 		c.Error(err)
 		return

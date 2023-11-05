@@ -14,8 +14,8 @@ type usereRepo struct {
 }
 
 type UserRepo interface {
-	CreateUser(ctx context.Context, user model.User) (model.User, error)
-	FindUserByIdentifier(ctx context.Context, email string) (model.User, error)
+	CreateUser(ctx context.Context, user *model.User) (*model.User, error)
+	FindUserByIdentifier(ctx context.Context, email string) (*model.User, error)
 }
 
 func NewUserRepo(db *gorm.DB) *usereRepo {
@@ -24,23 +24,23 @@ func NewUserRepo(db *gorm.DB) *usereRepo {
 	}
 }
 
-func (ur *usereRepo) CreateUser(ctx context.Context, user model.User) (model.User, error) {
-	if err := ur.db.WithContext(ctx).Create(&user).Error; err != nil {
+func (ur *usereRepo) CreateUser(ctx context.Context, user *model.User) (*model.User, error) {
+	if err := ur.db.WithContext(ctx).Create(user).Error; err != nil {
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
-			return model.User{}, helper.ErrDuplicateKey
+			return nil, helper.ErrDuplicateKey
 		}
-		return model.User{}, err
+		return nil, err
 	}
 	return user, nil
 }
 
-func (ur *usereRepo) FindUserByIdentifier(ctx context.Context, email string) (model.User, error) {
-	var user model.User
-	if err := ur.db.WithContext(ctx).Where("email = ?", email).First(&user).Error; err != nil {
+func (ur *usereRepo) FindUserByIdentifier(ctx context.Context, email string) (*model.User, error) {
+	user := new(model.User)
+	if err := ur.db.WithContext(ctx).Where("email = ?", email).First(user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return model.User{}, helper.ErrUserNotFound
+			return nil, helper.ErrUserNotFound
 		}
-		return model.User{}, err
+		return nil, err
 	}
 	return user, nil
 }

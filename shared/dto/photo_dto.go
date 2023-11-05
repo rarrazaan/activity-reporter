@@ -15,16 +15,16 @@ type PhotoRes struct {
 	UserID int64 `json:"user_id"`
 }
 
-func ConvPhotoReq(photo PhotoReq, urlImg string, userID int64) model.Photo {
-	return model.Photo{
-		Image:   urlImg,
+func ConvPhotoReq(photo *PhotoReq, urlImg string, userID int64) *model.Photo {
+	return &model.Photo{
+		ImageUrl:   urlImg,
 		Caption: photo.Caption,
 		UserID:  userID,
 	}
 }
 
-func ConvPhotoRes(photo model.Photo) PhotoRes {
-	return PhotoRes{
+func ConvPhotoRes(photo *model.Photo) *PhotoRes {
+	return &PhotoRes{
 		ID:     photo.ID,
 		UserID: photo.UserID,
 	}

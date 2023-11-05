@@ -11,6 +11,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -37,16 +38,16 @@ func TestHttpHandler_Register(t *testing.T) {
 	assert := assert.New(t)
 	t.Run("should return 200 when successfully registered", func(t *testing.T) {
 		Setup()
-		h := httphandler.NewHttpHandler(mockUserUsecase, mockPhotoUsecase, mockResetPWUsecase)
+		h := httphandler.NewHttpHandler(mockUserUsecase, mockPhotoUsecase, mockResetPWUsecase, &cloudinary.Cloudinary{})
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 
-		req := dto.RegisterReq{
+		req := &dto.RegisterReq{
 			Name:     "Chitanda",
 			Email:    "chitanda@example.com",
 			Password: "password123",
 		}
-		userRes := dto.UserRes{
+		userRes := &dto.UserRes{
 			ID:    1,
 			Name:  "Chitanda",
 			Email: "chitanda@example.com",
@@ -73,16 +74,16 @@ func TestHttpHandler_Register(t *testing.T) {
 
 	t.Run("should return 500 when failed to create user", func(t *testing.T) {
 		Setup()
-		h := httphandler.NewHttpHandler(mockUserUsecase, mockPhotoUsecase, mockResetPWUsecase)
+		h := httphandler.NewHttpHandler(mockUserUsecase, mockPhotoUsecase, mockResetPWUsecase, &cloudinary.Cloudinary{})
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 
-		req := dto.RegisterReq{
+		req := &dto.RegisterReq{
 			Name:     "Chitanda",
 			Email:    "chitanda@example.com",
 			Password: "password123",
 		}
-		userRes := dto.UserRes{}
+		userRes := &dto.UserRes{}
 		mockUserUsecase.On("Register", mock.Anything, dto.ConvURegisToModel(req)).Return(userRes, helper.ErrInternalServer)
 		expectedResp, _ := json.Marshal(
 			dto.JSONResponse{
