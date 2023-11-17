@@ -11,16 +11,18 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type userUsecase struct {
-	crypto   helper.AppCrypto
-	jwt      helper.JwtTokenizer
-	userRepo repository.UserRepo
-}
+type (
+	userUsecase struct {
+		crypto   helper.AppCrypto
+		jwt      helper.JwtTokenizer
+		userRepo repository.UserRepo
+	}
 
-type UserUsecase interface {
-	Register(ctx context.Context, user *model.User) (*dto.UserRes, error)
-	Login(ctx context.Context, user *model.User) (*dto.LoginRes, error)
-}
+	UserUsecase interface {
+		Register(ctx context.Context, user *model.User) (*dto.UserRes, error)
+		Login(ctx context.Context, user *model.User) (*dto.LoginRes, error)
+	}
+)
 
 func NewUserUsecase(userRepo repository.UserRepo, crypto helper.AppCrypto, jwt helper.JwtTokenizer) *userUsecase {
 	return &userUsecase{

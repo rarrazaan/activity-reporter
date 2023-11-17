@@ -4,14 +4,22 @@ import (
 	"activity-reporter/shared/dto"
 	"activity-reporter/shared/helper"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strconv"
 
+	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/gin-gonic/gin"
 )
 
 func (h *HttpHandler) PostPhoto(c *gin.Context) {
+	helper.LoadEnv()
+	cld, err := cloudinary.NewFromParams(os.Getenv("CLOUD_NAME"), os.Getenv("CLOUD_KEY"), os.Getenv("CLOUD_SECRET"))
+	if err != nil {
+		c.Error(err)
+		return
+	}
 	var req dto.PhotoReq
 	userIDstr := c.Param("id")
 	userID, err := strconv.Atoi(userIDstr)
@@ -35,7 +43,7 @@ func (h *HttpHandler) PostPhoto(c *gin.Context) {
 		c.Error(err)
 		return
 	}
-	resp, err := h.cld.Upload.Upload(c, dst, uploader.UploadParams{PublicID: req.Image.Filename})
+	resp, err := cld.Upload.Upload(c, dst, uploader.UploadParams{PublicID: req.Image.Filename})
 	if err != nil {
 		c.Error(err)
 		return

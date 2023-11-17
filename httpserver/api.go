@@ -34,6 +34,7 @@ func NewRouter(h *httphandler.HttpHandler) *gin.Engine {
 
 	user := r.Group("/users", middleware.Auth())
 	user.POST("/:id/post", h.PostPhoto)
+
 	r.POST("/forgot-password", h.ForgetPW)
 
 	r.NoRoute(func(c *gin.Context) {
@@ -47,7 +48,6 @@ func main() {
 	helper.LoadEnv()
 	db := dependency.ConnectDB()
 	rdb := dependency.NewRedisClient()
-	cld := dependency.NewCloudinary()
 
 	crypto := helper.NewAppCrypto()
 	jwt := helper.NewJwtTokenizer()
@@ -59,7 +59,7 @@ func main() {
 	pu := usecase.NewPhotoUsecase(pr)
 	ru := usecase.NewResetPWUsecase(rdb, ur)
 
-	h := httphandler.NewHttpHandler(uu, pu, ru, cld)
+	h := httphandler.NewHttpHandler(uu, pu, ru)
 	router := NewRouter(h)
 	router.ContextWithFallback = true
 

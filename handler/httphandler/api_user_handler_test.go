@@ -11,7 +11,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -38,7 +37,7 @@ func TestHttpHandler_Register(t *testing.T) {
 	assert := assert.New(t)
 	t.Run("should return 200 when successfully registered", func(t *testing.T) {
 		Setup()
-		h := httphandler.NewHttpHandler(mockUserUsecase, mockPhotoUsecase, mockResetPWUsecase, &cloudinary.Cloudinary{})
+		h := httphandler.NewHttpHandler(mockUserUsecase, mockPhotoUsecase, mockResetPWUsecase)
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 
@@ -74,7 +73,7 @@ func TestHttpHandler_Register(t *testing.T) {
 
 	t.Run("should return 500 when failed to create user", func(t *testing.T) {
 		Setup()
-		h := httphandler.NewHttpHandler(mockUserUsecase, mockPhotoUsecase, mockResetPWUsecase, &cloudinary.Cloudinary{})
+		h := httphandler.NewHttpHandler(mockUserUsecase, mockPhotoUsecase, mockResetPWUsecase)
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 
