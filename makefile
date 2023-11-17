@@ -1,2 +1,2 @@
-gorunapi:
-	go run httpserver/api.go
+dev:
+	go run cmd/rest/api.go
