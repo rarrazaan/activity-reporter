@@ -1,13 +1,12 @@
 package dto
 
 import (
-	"activity-reporter/model"
-	"mime/multipart"
+	"mini-socmed/internal/model"
 )
 
 type PhotoReq struct {
-	Image   *multipart.FileHeader `form:"image" binding:"required"`
-	Caption string                `form:"caption"`
+	ImageUrl string `json:"image_url" binding:"required"`
+	Caption  string `json:"caption"`
 }
 
 type PhotoRes struct {
@@ -15,11 +14,11 @@ type PhotoRes struct {
 	UserID int64 `json:"user_id"`
 }
 
-func ConvPhotoReq(photo *PhotoReq, urlImg string, userID int64) *model.Photo {
+func ConvPhotoReq(photo *PhotoReq, userID int64) *model.Photo {
 	return &model.Photo{
-		ImageUrl:   urlImg,
-		Caption: photo.Caption,
-		UserID:  userID,
+		ImageUrl: photo.ImageUrl,
+		Caption:  photo.Caption,
+		UserID:   userID,
 	}
 }
 

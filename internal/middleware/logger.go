@@ -1,14 +1,14 @@
 package middleware
 
 import (
-	"activity-reporter/logger"
+	"mini-socmed/internal/dependency"
 	"time"
 
 	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
 )
 
-func Logger(log logger.Logger) gin.HandlerFunc {
+func Logger(log dependency.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		startTime := time.Now()
 

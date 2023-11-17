@@ -1,28 +1,23 @@
 package repository
 
 import (
-	"activity-reporter/model"
-	"activity-reporter/shared/helper"
 	"context"
 	"errors"
+	"mini-socmed/internal/model"
+	"mini-socmed/internal/shared/helper"
 
 	"gorm.io/gorm"
 )
 
-type usereRepo struct {
-	db *gorm.DB
-}
-
-type UserRepo interface {
-	CreateUser(ctx context.Context, user *model.User) (*model.User, error)
-	FindUserByIdentifier(ctx context.Context, email string) (*model.User, error)
-}
-
-func NewUserRepo(db *gorm.DB) *usereRepo {
-	return &usereRepo{
-		db: db,
+type (
+	usereRepo struct {
+		db *gorm.DB
 	}
-}
+	UserRepo interface {
+		CreateUser(ctx context.Context, user *model.User) (*model.User, error)
+		FindUserByIdentifier(ctx context.Context, email string) (*model.User, error)
+	}
+)
 
 func (ur *usereRepo) CreateUser(ctx context.Context, user *model.User) (*model.User, error) {
 	if err := ur.db.WithContext(ctx).Create(user).Error; err != nil {
@@ -43,4 +38,10 @@ func (ur *usereRepo) FindUserByIdentifier(ctx context.Context, email string) (*m
 		return nil, err
 	}
 	return user, nil
+}
+
+func NewUserRepo(db *gorm.DB) UserRepo {
+	return &usereRepo{
+		db: db,
+	}
 }

@@ -1,2 +1,6 @@
 .env
-.coverage
+.env.dev
+.env.prod
+coverage.out
+__debug*
+./**/__debug*

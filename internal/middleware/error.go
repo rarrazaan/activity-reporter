@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"activity-reporter/shared/helper"
+	"mini-socmed/internal/shared/helper"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

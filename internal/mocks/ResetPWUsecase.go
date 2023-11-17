@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	dto "activity-reporter/shared/dto"
+	dto "mini-socmed/internal/shared/dto"
 	context "context"
 
 	mock "github.com/stretchr/testify/mock"

@@ -1,31 +1,25 @@
 package usecase
 
 import (
-	"activity-reporter/repository"
-	"activity-reporter/shared/dto"
-	"activity-reporter/shared/helper"
 	"context"
 	"errors"
+	"mini-socmed/internal/repository"
+	"mini-socmed/internal/shared/dto"
+	"mini-socmed/internal/shared/helper"
 	"time"
 
 	"github.com/redis/go-redis/v9"
 )
 
-type resetPWUsecase struct {
-	rdb      *redis.Client
-	userRepo repository.UserRepo
-}
-
-type ResetPWUsecase interface {
-	ForgetPW(ctx context.Context, email string) (dto.ForgetPWRes, error)
-}
-
-func NewResetPWUsecase(rdb *redis.Client, userRepo repository.UserRepo) *resetPWUsecase {
-	return &resetPWUsecase{
-		rdb:      rdb,
-		userRepo: userRepo,
+type (
+	resetPWUsecase struct {
+		rdb      *redis.Client
+		userRepo repository.UserRepo
 	}
-}
+	ResetPWUsecase interface {
+		ForgetPW(ctx context.Context, email string) (dto.ForgetPWRes, error)
+	}
+)
 
 func (ru *resetPWUsecase) ForgetPW(ctx context.Context, email string) (dto.ForgetPWRes, error) {
 	_, err := ru.userRepo.FindUserByIdentifier(ctx, email)
@@ -55,4 +49,11 @@ func (ru *resetPWUsecase) ForgetPW(ctx context.Context, email string) (dto.Forge
 	return dto.ForgetPWRes{
 		Token: res,
 	}, nil
+}
+
+func NewResetPWUsecase(rdb *redis.Client, userRepo repository.UserRepo) ResetPWUsecase {
+	return &resetPWUsecase{
+		rdb:      rdb,
+		userRepo: userRepo,
+	}
 }

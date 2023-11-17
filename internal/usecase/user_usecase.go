@@ -1,12 +1,12 @@
 package usecase
 
 import (
-	"activity-reporter/model"
-	"activity-reporter/repository"
-	"activity-reporter/shared/dto"
-	"activity-reporter/shared/helper"
 	"context"
 	"errors"
+	"mini-socmed/internal/model"
+	"mini-socmed/internal/repository"
+	"mini-socmed/internal/shared/dto"
+	"mini-socmed/internal/shared/helper"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -23,14 +23,6 @@ type (
 		Login(ctx context.Context, user *model.User) (*dto.LoginRes, error)
 	}
 )
-
-func NewUserUsecase(userRepo repository.UserRepo, crypto helper.AppCrypto, jwt helper.JwtTokenizer) *userUsecase {
-	return &userUsecase{
-		userRepo: userRepo,
-		crypto:   crypto,
-		jwt:      jwt,
-	}
-}
 
 func (uu *userUsecase) Register(ctx context.Context, user *model.User) (*dto.UserRes, error) {
 	res, err := uu.userRepo.CreateUser(ctx, user)
@@ -62,4 +54,12 @@ func (uu *userUsecase) Login(ctx context.Context, user *model.User) (*dto.LoginR
 		return nil, helper.ErrGenerateToken
 	}
 	return &dto.LoginRes{User: dto.ConvUserToRes(res), Token: token}, nil
+}
+
+func NewUserUsecase(userRepo repository.UserRepo, crypto helper.AppCrypto, jwt helper.JwtTokenizer) UserUsecase {
+	return &userUsecase{
+		userRepo: userRepo,
+		crypto:   crypto,
+		jwt:      jwt,
+	}
 }

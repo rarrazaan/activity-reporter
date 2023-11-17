@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	model "activity-reporter/model"
+	model "mini-socmed/internal/model"
 	context "context"
 
 	mock "github.com/stretchr/testify/mock"
