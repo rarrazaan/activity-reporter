@@ -4,3 +4,4 @@
 coverage.out
 __debug*
 ./**/__debug*
+dummy.json

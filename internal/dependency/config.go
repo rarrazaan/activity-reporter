@@ -35,7 +35,8 @@ type (
 	}
 
 	mongoDB struct {
-		MongoUri string `env:"MONGODB_URI"`
+		MongoUri  string `env:"MONGODB_URI"`
+		MongoName string `env:"MONGODB_NAME"`
 	}
 
 	redisconfig struct {

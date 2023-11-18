@@ -2,19 +2,19 @@ package model
 
 import (
 	"time"
-
-	"gorm.io/gorm"
 )
 
 type Photo struct {
-	ID      int64  `gorm:"primarykey"`
-	ImageUrl   string `gorm:"not null;type:varchar"`
-	Caption string
+	ID        string    `bson:"id"`
+	ImageUrl  string    `bson:"image_url"`
+	Caption   string    `bson:"caption"`
+	UserID    int64     `bson:"user_id"`
+	Username  string    `bson:"user_name"`
+	Likers    []liker   `bson:"likers"`
+	CreatedAt time.Time `bson:"created_at"`
+}
 
-	UserID int64
-	Likers []User `gorm:"many2many:user_photos;"`
-
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `gorm:"index"`
+type liker struct {
+	UserID   int64  `bson:"user_id"`
+	Username string `bson:"user_name"`
 }

@@ -13,7 +13,6 @@ type User struct {
 	Password string `gorm:"type:varchar; not null"`
 
 	Followers  []User     `gorm:"foreignKey:ID"`
-	Photos     []Photo    `gorm:"foreignKey:UserID"`
 	Activities []Activity `gorm:"foreignKey:UserID"`
 
 	CreatedAt time.Time
