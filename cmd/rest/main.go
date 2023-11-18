@@ -20,9 +20,14 @@ func main() {
 	if rc == nil {
 		return
 	}
+	mdb, err := dependency.ConnectMongoDB(*config, logger)
+	if err != nil {
+		return
+	}
 
 	crypto := helper.NewAppCrypto()
 	jwt := helper.NewJwtTokenizer()
+	rsting := helper.NewRandomString()
 
-	httpserver.InitApp(db, rc, *config, logger, crypto, jwt)
+	httpserver.InitApp(db, rc, mdb, *config, logger, crypto, jwt, rsting)
 }

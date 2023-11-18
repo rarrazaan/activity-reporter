@@ -19,13 +19,14 @@ func ConnectDB(config Config, logger Logger) *gorm.DB {
 	)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{TranslateError: true})
 	if err != nil {
+		logger.Errorf("Error connecting to Database", err)
 		return nil
 	}
 	// // UNCOMMENT WHEN TRYING TO RESET DB
 	// Down(db)
 
-	db.AutoMigrate(model.User{}, model.Photo{}, model.Activity{}, model.UserPhoto{})
-
+	db.AutoMigrate(model.User{}, model.Activity{}, model.UserPhoto{})
+	logger.Infof("Successfully Connect to Database", nil)
 	return db
 }
 

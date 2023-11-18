@@ -1,41 +1,40 @@
 package httphandler
 
 import (
+	"fmt"
+	"mini-socmed/internal/constant"
 	"mini-socmed/internal/dependency"
 	"mini-socmed/internal/middleware"
+	"mini-socmed/internal/model"
 	"mini-socmed/internal/shared/dto"
 	"mini-socmed/internal/shared/helper"
 	"mini-socmed/internal/usecase"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
 type PostHandler struct {
-	config dependency.Config
-	puc    usecase.PhotoUsecase
+	config  dependency.Config
+	rString helper.RandomString
+	puc     usecase.PhotoUsecase
 }
 
 func (h PostHandler) PostPhoto(c *gin.Context) {
-	var req dto.PhotoReq
-	userIDstr := c.Param("id")
-	userID, err := strconv.Atoi(userIDstr)
+	req := new(dto.PhotoReq)
+	userID := c.GetInt64("user_id")
+	err := c.ShouldBindJSON(req)
 	if err != nil {
 		c.Error(err)
 		return
 	}
-	userIDJWT := c.GetInt64("user_id")
-	if int64(userID) != userIDJWT {
-		c.Error(helper.ErrUnauthorizedUser)
-		return
+	post := &model.Photo{
+		ID: fmt.Sprintf(constant.PhotoIDTempate, userID, h.rString.RandStringBytesMaskImprSrcSB()),
+		ImageUrl: req.ImageUrl,
+		Caption: req.Caption,
+		UserID: userID,
 	}
-	err = c.ShouldBindJSON(&req)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-	res, err := h.puc.PostPhoto(c, dto.ConvPhotoReq(&req, int64(userID)))
+	res, err := h.puc.PostPhoto(c, post)
 	if err != nil {
 		c.Error(err)
 		return
@@ -49,9 +48,10 @@ func (h PostHandler) Route(r *gin.Engine) {
 		POST("", h.PostPhoto)
 }
 
-func NewPostHandler(config dependency.Config, puc usecase.PhotoUsecase) PostHandler {
+func NewPostHandler(config dependency.Config, puc usecase.PhotoUsecase, rString helper.RandomString) PostHandler {
 	return PostHandler{
-		config: config,
-		puc:    puc,
+		config:  config,
+		puc:     puc,
+		rString: rString,
 	}
 }

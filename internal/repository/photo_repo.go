@@ -2,30 +2,31 @@ package repository
 
 import (
 	"context"
+	"mini-socmed/internal/constant"
 	"mini-socmed/internal/model"
 
-	"gorm.io/gorm"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type (
 	photoRepo struct {
-		db *gorm.DB
+		mongo *mongo.Database
 	}
 	PhotoRepo interface {
-		AddPhoto(ctx context.Context, photo *model.Photo) (*model.Photo, error)
+		AddPhoto(ctx context.Context, photo *model.Photo) (*mongo.InsertOneResult, error)
 	}
 )
 
-func (pr *photoRepo) AddPhoto(ctx context.Context, photo *model.Photo) (*model.Photo, error) {
-	err := pr.db.WithContext(ctx).Create(photo).Error
+func (pr *photoRepo) AddPhoto(ctx context.Context, photo *model.Photo) (*mongo.InsertOneResult, error) {
+	res, err := pr.mongo.Collection(constant.MongoUserPostCollection).InsertOne(ctx, photo)
 	if err != nil {
 		return nil, err
 	}
-	return photo, nil
+	return res, nil
 }
 
-func NewPhotoRepo(db *gorm.DB) PhotoRepo {
+func NewPhotoRepo(mongo *mongo.Database) PhotoRepo {
 	return &photoRepo{
-		db: db,
+		mongo: mongo,
 	}
 }

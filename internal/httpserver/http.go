@@ -20,18 +20,20 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/redis/go-redis/v9"
+	"go.mongodb.org/mongo-driver/mongo"
 	"gorm.io/gorm"
 )
 
 type (
 	server struct {
-		r      *gin.Engine
-		v      *validator.Validate
-		cfg    dependency.Config
-		crypto helper.AppCrypto
-		jwt    helper.JwtTokenizer
-		repos  repositories
-		ucs    usecases
+		r       *gin.Engine
+		v       *validator.Validate
+		cfg     dependency.Config
+		crypto  helper.AppCrypto
+		jwt     helper.JwtTokenizer
+		rstring helper.RandomString
+		repos   repositories
+		ucs     usecases
 	}
 	repositories struct {
 		userRepo      repository.UserRepo
@@ -47,9 +49,9 @@ type (
 	}
 )
 
-func (s *server) initRepository(db *gorm.DB, rd *redis.Client, cfg dependency.Config) {
+func (s *server) initRepository(db *gorm.DB, rd *redis.Client, mdb *mongo.Database, cfg dependency.Config) {
 	s.repos.userRepo = repository.NewUserRepo(db)
-	s.repos.photoRepo = repository.NewPhotoRepo(db)
+	s.repos.photoRepo = repository.NewPhotoRepo(mdb)
 	s.repos.userPhotoRepo = repository.NewUserPhotoRepo(db)
 	s.repos.redisRepo = repository.NewRedisRepo(s.cfg, rd)
 }
@@ -62,7 +64,7 @@ func (s *server) initUsecase(rd *redis.Client) {
 		s.jwt,
 		s.cfg,
 	)
-	s.ucs.photoUsecase = usecase.NewPhotoUsecase(s.repos.photoRepo)
+	s.ucs.photoUsecase = usecase.NewPhotoUsecase(s.repos.photoRepo, s.repos.userRepo)
 	s.ucs.resetPWUsecase = usecase.NewResetPWUsecase(rd, s.repos.userRepo)
 	s.ucs.emailSenderUsecase = usecase.NewEmailSenderUsecase(
 		s.cfg.Email.SenderName,
@@ -81,7 +83,7 @@ func (s *server) initHTTPHandler(logger dependency.Logger, config dependency.Con
 		middleware.GlobalErrorMiddleware(),
 	)
 	httphandler.NewAuthHandler(s.ucs.authUsecase, s.cfg).Route(s.r)
-	httphandler.NewPostHandler(s.cfg, s.ucs.photoUsecase).Route(s.r)
+	httphandler.NewPostHandler(s.cfg, s.ucs.photoUsecase, s.rstring).Route(s.r)
 	httphandler.NewResetPWHandler(s.cfg, s.ucs.resetPWUsecase, s.ucs.emailSenderUsecase).Route(s.r)
 
 	s.r.NoRoute(func(c *gin.Context) {
@@ -127,20 +129,23 @@ func initGracefulShutdown(restSrv *http.Server, cfg dependency.Config) {
 func InitApp(
 	db *gorm.DB,
 	rc *redis.Client,
+	mdb *mongo.Database,
 	cfg dependency.Config,
 	logger dependency.Logger,
 	crypto helper.AppCrypto,
 	jwt helper.JwtTokenizer,
+	rstring helper.RandomString,
 ) {
 
 	s := server{
-		v:      validator.New(),
-		cfg:    cfg,
-		crypto: crypto,
-		jwt:    jwt,
+		v:       validator.New(),
+		cfg:     cfg,
+		crypto:  crypto,
+		jwt:     jwt,
+		rstring: rstring,
 	}
 
-	s.initRepository(db, rc, cfg)
+	s.initRepository(db, rc, mdb, cfg)
 	s.initUsecase(rc)
 	s.initHTTPHandler(logger, cfg)
 
