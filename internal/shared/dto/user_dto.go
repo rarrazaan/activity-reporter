@@ -35,9 +35,9 @@ type LoginReq struct {
 	Password string `json:"password" binding:"required"`
 }
 
-type LoginRes struct {
-	User  *UserRes
-	Token string
+type LoginToken struct {
+	RToken string
+	AToken string
 }
 
 func ConvULoginToModel(req *LoginReq) *model.User {

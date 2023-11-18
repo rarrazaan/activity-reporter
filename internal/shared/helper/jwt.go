@@ -19,18 +19,16 @@ type (
 		jwt.RegisteredClaims
 		TokenType constant.TokenType `json:"token_type"`
 	}
-	SignAccessTokenPayload struct {
-		UserID int64
-	}
 )
+
+type JwtTokenizer interface {
+	GenerateAccessToken(user dto.UserTokenDTO, config dependency.Config) (*string, error)
+	GenerateRefreshToken(config dependency.Config) (*string, error)
+}
 
 type jwtTokenizer struct{}
 
-type JwtTokenizer interface {
-	GenerateToken(user dto.UserTokenDTO) (string, error)
-}
-
-func NewJwtTokenizer() *jwtTokenizer {
+func NewJwtTokenizer() JwtTokenizer {
 	return &jwtTokenizer{}
 }
 
@@ -60,7 +58,7 @@ func (c RefreshJWTClaim) Valid() error {
 	return nil
 }
 
-func GenerateAccessToken(payload SignAccessTokenPayload, config dependency.Config) (*string, error) {
+func (j *jwtTokenizer) GenerateAccessToken(user dto.UserTokenDTO, config dependency.Config) (*string, error) {
 	expiresAt := time.Now().Add(time.Minute * time.Duration(config.Jwt.AccessTokenExpiration))
 	now := time.Now()
 
@@ -72,7 +70,7 @@ func GenerateAccessToken(payload SignAccessTokenPayload, config dependency.Confi
 
 	claims := AccessJWTClaim{
 		RegisteredClaims: registeredClaims,
-		UserId:           payload.UserID,
+		UserId:           user.ID,
 		TokenType:        constant.AccessTokenType,
 	}
 
@@ -85,7 +83,7 @@ func GenerateAccessToken(payload SignAccessTokenPayload, config dependency.Confi
 	return &t, nil
 }
 
-func GenerateRefreshToken(config dependency.Config) (*string, error) {
+func (j *jwtTokenizer) GenerateRefreshToken(config dependency.Config) (*string, error) {
 	expiresAt := time.Now().Add(time.Minute * time.Duration(config.Jwt.RefreshTokenExpiration))
 	now := time.Now()
 
