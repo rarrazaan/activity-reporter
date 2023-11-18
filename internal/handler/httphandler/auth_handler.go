@@ -3,6 +3,7 @@ package httphandler
 import (
 	"mini-socmed/internal/dependency"
 	"mini-socmed/internal/shared/dto"
+	"mini-socmed/internal/shared/helper"
 	"mini-socmed/internal/usecase"
 	"net/http"
 
@@ -10,7 +11,7 @@ import (
 )
 
 type AuthHandler struct {
-	uuc    usecase.UserUsecase
+	uuc    usecase.AuthUsecase
 	config dependency.Config
 }
 
@@ -39,7 +40,8 @@ func (h AuthHandler) login(c *gin.Context) {
 		c.Error(err)
 		return
 	}
-	c.JSON(http.StatusOK, dto.JSONResponse{Data: res})
+	helper.SetCookieAfterLogin(c, h.config, res.AToken, res.RToken)
+	c.Status(http.StatusOK)
 }
 
 func (h AuthHandler) Route(r *gin.Engine) {
@@ -49,7 +51,7 @@ func (h AuthHandler) Route(r *gin.Engine) {
 		POST("/login", h.login)
 }
 
-func NewAuthHandler(uuc usecase.UserUsecase, config dependency.Config) *AuthHandler {
+func NewAuthHandler(uuc usecase.AuthUsecase, config dependency.Config) *AuthHandler {
 	return &AuthHandler{
 		uuc:    uuc,
 		config: config,

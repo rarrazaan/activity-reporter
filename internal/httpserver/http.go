@@ -37,26 +37,30 @@ type (
 		userRepo      repository.UserRepo
 		photoRepo     repository.PhotoRepo
 		userPhotoRepo repository.UserPhotoRepo
+		redisRepo     repository.RedisRepo
 	}
 	usecases struct {
-		userUsecase        usecase.UserUsecase
+		authUsecase        usecase.AuthUsecase
 		photoUsecase       usecase.PhotoUsecase
 		resetPWUsecase     usecase.ResetPWUsecase
 		emailSenderUsecase usecase.EmailSenderUsecase
 	}
 )
 
-func (s *server) initRepository(db *gorm.DB, re *redis.Client, cfg dependency.Config) {
+func (s *server) initRepository(db *gorm.DB, rd *redis.Client, cfg dependency.Config) {
 	s.repos.userRepo = repository.NewUserRepo(db)
 	s.repos.photoRepo = repository.NewPhotoRepo(db)
 	s.repos.userPhotoRepo = repository.NewUserPhotoRepo(db)
+	s.repos.redisRepo = repository.NewRedisRepo(s.cfg, rd)
 }
 
 func (s *server) initUsecase(rd *redis.Client) {
-	s.ucs.userUsecase = usecase.NewUserUsecase(
+	s.ucs.authUsecase = usecase.NewUserUsecase(
 		s.repos.userRepo,
+		s.repos.redisRepo,
 		s.crypto,
 		s.jwt,
+		s.cfg,
 	)
 	s.ucs.photoUsecase = usecase.NewPhotoUsecase(s.repos.photoRepo)
 	s.ucs.resetPWUsecase = usecase.NewResetPWUsecase(rd, s.repos.userRepo)
@@ -76,7 +80,7 @@ func (s *server) initHTTPHandler(logger dependency.Logger, config dependency.Con
 		middleware.WithTimeout,
 		middleware.GlobalErrorMiddleware(),
 	)
-	httphandler.NewAuthHandler(s.ucs.userUsecase, s.cfg).Route(s.r)
+	httphandler.NewAuthHandler(s.ucs.authUsecase, s.cfg).Route(s.r)
 	httphandler.NewPostHandler(s.cfg, s.ucs.photoUsecase).Route(s.r)
 	httphandler.NewResetPWHandler(s.cfg, s.ucs.resetPWUsecase, s.ucs.emailSenderUsecase).Route(s.r)
 
@@ -120,11 +124,20 @@ func initGracefulShutdown(restSrv *http.Server, cfg dependency.Config) {
 	log.Println("Server exiting")
 }
 
-func InitApp(db *gorm.DB, rc *redis.Client, cfg dependency.Config, logger dependency.Logger) {
+func InitApp(
+	db *gorm.DB,
+	rc *redis.Client,
+	cfg dependency.Config,
+	logger dependency.Logger,
+	crypto helper.AppCrypto,
+	jwt helper.JwtTokenizer,
+) {
 
 	s := server{
-		v:   validator.New(),
-		cfg: cfg,
+		v:      validator.New(),
+		cfg:    cfg,
+		crypto: crypto,
+		jwt:    jwt,
 	}
 
 	s.initRepository(db, rc, cfg)

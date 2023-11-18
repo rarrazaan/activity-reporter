@@ -3,6 +3,7 @@ package main
 import (
 	"mini-socmed/internal/dependency"
 	"mini-socmed/internal/httpserver"
+	"mini-socmed/internal/shared/helper"
 )
 
 func main() {
@@ -20,5 +21,8 @@ func main() {
 		return
 	}
 
-	httpserver.InitApp(db, rc, *config, logger)
+	crypto := helper.NewAppCrypto()
+	jwt := helper.NewJwtTokenizer()
+
+	httpserver.InitApp(db, rc, *config, logger, crypto, jwt)
 }
