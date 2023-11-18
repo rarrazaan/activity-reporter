@@ -1,25 +1,20 @@
 package repository
 
 import (
-	"activity-reporter/model"
 	"context"
+	"mini-socmed/internal/model"
 
 	"gorm.io/gorm"
 )
 
-type photoRepo struct {
-	db *gorm.DB
-}
-
-type PhotoRepo interface {
-	AddPhoto(ctx context.Context, photo *model.Photo) (*model.Photo, error)
-}
-
-func NewPhotoRepo(db *gorm.DB) *photoRepo {
-	return &photoRepo{
-		db: db,
+type (
+	photoRepo struct {
+		db *gorm.DB
 	}
-}
+	PhotoRepo interface {
+		AddPhoto(ctx context.Context, photo *model.Photo) (*model.Photo, error)
+	}
+)
 
 func (pr *photoRepo) AddPhoto(ctx context.Context, photo *model.Photo) (*model.Photo, error) {
 	err := pr.db.WithContext(ctx).Create(photo).Error
@@ -27,4 +22,10 @@ func (pr *photoRepo) AddPhoto(ctx context.Context, photo *model.Photo) (*model.P
 		return nil, err
 	}
 	return photo, nil
+}
+
+func NewPhotoRepo(db *gorm.DB) PhotoRepo {
+	return &photoRepo{
+		db: db,
+	}
 }

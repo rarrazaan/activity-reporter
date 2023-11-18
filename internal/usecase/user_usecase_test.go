@@ -1,13 +1,13 @@
 package usecase_test
 
 import (
-	"activity-reporter/mocks"
-	"activity-reporter/model"
-	"activity-reporter/shared/dto"
-	"activity-reporter/shared/helper"
-	"activity-reporter/usecase"
 	"context"
 	"errors"
+	"mini-socmed/internal/model"
+	"mini-socmed/internal/shared/dto"
+	"mini-socmed/internal/shared/helper"
+	"mini-socmed/internal/mocks"
+	"mini-socmed/internal/usecase"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

@@ -1,6 +1,6 @@
 package dto
 
-import "activity-reporter/model"
+import "mini-socmed/internal/model"
 
 type RegisterReq struct {
 	Name     string `json:"name" binding:"required"`

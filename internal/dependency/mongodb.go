@@ -1,22 +1,18 @@
 package dependency
 
 import (
+	"context"
+
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func connect() (*mongo.Database, error) {
-	clientOptions := options.Client()
-	clientOptions.ApplyURI("mongodb://localhost:27017")
-	client, err := mongo.NewClient(clientOptions)
+func ConnectMongoDB(config Config) (*mongo.Client, error) {
+
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(config.MongoDB.MongoUri))
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 
-	err = client.Connect(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	return client.Database("belajar_golang"), nil
+	return client, nil
 }

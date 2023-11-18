@@ -1,26 +1,22 @@
 package dependency
 
 import (
-	"activity-reporter/model"
-	"activity-reporter/shared/helper"
 	"fmt"
-	"os"
+	"mini-socmed/internal/constant"
+	"mini-socmed/internal/model"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-func ConnectDB() *gorm.DB {
-	helper.LoadEnv()
-	var (
-		host     = os.Getenv("DB_HOST")
-		port     = os.Getenv("DB_PORT")
-		user     = os.Getenv("DB_USER")
-		password = os.Getenv("DB_PASSWORD")
-		dbname   = os.Getenv("DB_NAME")
+func ConnectDB(config Config, logger Logger) *gorm.DB {
+	dsn := fmt.Sprintf(constant.ConnectionStringTemplate,
+		config.PostgreDB.DBHost,
+		config.PostgreDB.DBUser,
+		config.PostgreDB.DBPass,
+		config.PostgreDB.DBName,
+		config.PostgreDB.DBPort,
 	)
-	// Getting and using a value from .env
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", host, user, password, dbname, port)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{TranslateError: true})
 	if err != nil {
 		return nil

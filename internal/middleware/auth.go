@@ -1,18 +1,17 @@
 package middleware
 
 import (
-	"activity-reporter/shared/helper"
+	"mini-socmed/internal/dependency"
+	"mini-socmed/internal/shared/helper"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
-func Auth() gin.HandlerFunc {
-	helper.LoadEnv()
+func Auth(config dependency.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if os.Getenv("APP_ENVIRONMENT") == "testing" {
+		if config.App.EnvMode == "testing" {
 			c.Set("user_id", int64(1))
 			c.Next()
 			return
@@ -25,19 +24,19 @@ func Auth() gin.HandlerFunc {
 			return
 		}
 
-		token, err := helper.ValidateJWT(splittedHeader[1])
+		token, err := helper.ValidateAccessToken(splittedHeader[1], config)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, helper.ErrInvalidJWTToken.ToErrorDto())
 			return
 		}
 
-		claims, ok := token.Claims.(*helper.MyClaims)
+		claims, ok := token.Claims.(*helper.AccessJWTClaim)
 		if !ok || !token.Valid {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, helper.ErrInvalidJWTToken.ToErrorDto())
 			return
 		}
 
-		c.Set("user_id", claims.UserID)
+		c.Set("user_id", claims.UserId)
 
 		c.Next()
 	}
