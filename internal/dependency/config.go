@@ -10,6 +10,7 @@ type (
 		MongoDB    mongoDB
 		RedisCache redisconfig
 		Jwt        jwt
+		Email      email
 	}
 
 	app struct {
@@ -47,6 +48,12 @@ type (
 		JWTSecret              string `env:"JWT_SECRET"`
 		AccessTokenExpiration  uint   `env:"ACCESS_TOKEN_EXPIRATION"`
 		RefreshTokenExpiration uint   `env:"REFRESH_TOKEN_EXPIRATION"`
+	}
+
+	email struct {
+		SenderName     string `env:"EMAIL_SENDER_NAME"`
+		SenderAddress  string `env:"EMAIL_SENDER_ADDRESS"`
+		SenderPassword string `env:"EMAIL_SENDER_PASSWORD"`
 	}
 )
 

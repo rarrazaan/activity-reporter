@@ -39,9 +39,10 @@ type (
 		userPhotoRepo repository.UserPhotoRepo
 	}
 	usecases struct {
-		userUsecase    usecase.UserUsecase
-		photoUsecase   usecase.PhotoUsecase
-		resetPWUsecase usecase.ResetPWUsecase
+		userUsecase        usecase.UserUsecase
+		photoUsecase       usecase.PhotoUsecase
+		resetPWUsecase     usecase.ResetPWUsecase
+		emailSenderUsecase usecase.EmailSenderUsecase
 	}
 )
 
@@ -59,6 +60,11 @@ func (s *server) initUsecase(rd *redis.Client) {
 	)
 	s.ucs.photoUsecase = usecase.NewPhotoUsecase(s.repos.photoRepo)
 	s.ucs.resetPWUsecase = usecase.NewResetPWUsecase(rd, s.repos.userRepo)
+	s.ucs.emailSenderUsecase = usecase.NewEmailSenderUsecase(
+		s.cfg.Email.SenderName,
+		s.cfg.Email.SenderAddress,
+		s.cfg.Email.SenderPassword,
+	)
 }
 
 func (s *server) initHTTPHandler(logger dependency.Logger, config dependency.Config) {
@@ -72,7 +78,7 @@ func (s *server) initHTTPHandler(logger dependency.Logger, config dependency.Con
 	)
 	httphandler.NewAuthHandler(s.ucs.userUsecase, s.cfg).Route(s.r)
 	httphandler.NewPostHandler(s.cfg, s.ucs.photoUsecase).Route(s.r)
-	httphandler.NewResetPWHandler(s.cfg, s.ucs.resetPWUsecase).Route(s.r)
+	httphandler.NewResetPWHandler(s.cfg, s.ucs.resetPWUsecase, s.ucs.emailSenderUsecase).Route(s.r)
 
 	s.r.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"message": "page not found"})

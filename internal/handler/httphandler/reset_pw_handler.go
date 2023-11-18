@@ -12,6 +12,7 @@ import (
 type ResetPWHandler struct {
 	config dependency.Config
 	rpuc   usecase.ResetPWUsecase
+	esuc   usecase.EmailSenderUsecase
 }
 
 func (h ResetPWHandler) ForgetPW(c *gin.Context) {
@@ -20,21 +21,22 @@ func (h ResetPWHandler) ForgetPW(c *gin.Context) {
 		c.Error(err)
 		return
 	}
-	res, err := h.rpuc.ForgetPW(c, req.Email)
+	err := h.esuc.SendEmail("mini-socmed", "test", "akaraiju@gmail.com")
 	if err != nil {
 		c.Error(err)
 		return
 	}
-	c.JSON(http.StatusOK, dto.JSONResponse{Data: res})
+	c.Status(http.StatusOK)
 }
 
 func (h ResetPWHandler) Route(r *gin.Engine) {
 	r.POST("/forgot-password", h.ForgetPW)
 }
 
-func NewResetPWHandler(config dependency.Config, rpuc usecase.ResetPWUsecase) ResetPWHandler {
+func NewResetPWHandler(config dependency.Config, rpuc usecase.ResetPWUsecase, esuc usecase.EmailSenderUsecase) ResetPWHandler {
 	return ResetPWHandler{
 		config: config,
 		rpuc:   rpuc,
+		esuc:   esuc,
 	}
 }
