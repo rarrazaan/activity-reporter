@@ -38,7 +38,6 @@ type (
 	repositories struct {
 		userRepo      repository.UserRepo
 		photoRepo     repository.PhotoRepo
-		userPhotoRepo repository.UserPhotoRepo
 		redisRepo     repository.RedisRepo
 	}
 	usecases struct {
@@ -52,7 +51,6 @@ type (
 func (s *server) initRepository(db *gorm.DB, rd *redis.Client, mdb *mongo.Database, cfg dependency.Config) {
 	s.repos.userRepo = repository.NewUserRepo(db)
 	s.repos.photoRepo = repository.NewPhotoRepo(mdb)
-	s.repos.userPhotoRepo = repository.NewUserPhotoRepo(db)
 	s.repos.redisRepo = repository.NewRedisRepo(s.cfg, rd)
 }
 

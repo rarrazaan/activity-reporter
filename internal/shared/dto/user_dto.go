@@ -4,6 +4,7 @@ import "mini-socmed/internal/model"
 
 type RegisterReq struct {
 	Name     string `json:"name" binding:"required"`
+	Username string `json:"username" binding:"required"`
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required,min=8"`
 }
@@ -16,6 +17,7 @@ type UserRes struct {
 
 func ConvURegisToModel(req *RegisterReq) *model.User {
 	return &model.User{
+		Username: req.Username,
 		Name:     req.Name,
 		Email:    req.Email,
 		Password: req.Password,

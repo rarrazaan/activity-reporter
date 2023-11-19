@@ -3,7 +3,6 @@ package dependency
 import (
 	"fmt"
 	"mini-socmed/internal/constant"
-	"mini-socmed/internal/model"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -22,16 +21,7 @@ func ConnectDB(config Config, logger Logger) *gorm.DB {
 		logger.Errorf("Error connecting to Database", err)
 		return nil
 	}
-	// // UNCOMMENT WHEN TRYING TO RESET DB
-	// Down(db)
 
-	db.AutoMigrate(model.User{}, model.Activity{}, model.UserPhoto{})
 	logger.Infof("Successfully Connect to Database", nil)
 	return db
-}
-
-func Down(db *gorm.DB) {
-	db.Migrator().DropTable(model.Activity{})
-	db.Migrator().DropTable(model.Photo{})
-	db.Migrator().DropTable(model.User{})
 }
