@@ -1,6 +1,10 @@
 package middleware
 
 import (
+	"context"
+	"errors"
+	"log"
+	"mini-socmed/internal/shared/dto"
 	"mini-socmed/internal/shared/helper"
 	"net/http"
 
@@ -20,6 +24,7 @@ func GlobalErrorMiddleware() gin.HandlerFunc {
 		c.Next()
 
 		err := c.Errors.Last()
+		log.Println(err)
 		if err != nil {
 			switch e := err.Err.(type) {
 			case *helper.AppError:
@@ -27,9 +32,13 @@ func GlobalErrorMiddleware() gin.HandlerFunc {
 			case validator.ValidationErrors:
 				c.AbortWithStatusJSON(http.StatusBadRequest, helper.ValidationErrResponse(e))
 			default:
-				c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-					"message": e.Error(),
-				})
+				if errors.Is(err, context.DeadlineExceeded) {
+					c.AbortWithStatus(http.StatusRequestTimeout)
+				} else {
+					c.AbortWithStatusJSON(http.StatusInternalServerError, dto.JSONResponse{
+						Message: "internal server error",
+					})
+				}
 			}
 			c.Abort()
 		}

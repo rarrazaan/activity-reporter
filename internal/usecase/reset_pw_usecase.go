@@ -27,7 +27,7 @@ func (ru *resetPWUsecase) ForgetPW(ctx context.Context, email string) (dto.Forge
 		if errors.Is(err, helper.ErrUserNotFound) {
 			return dto.ForgetPWRes{}, helper.ErrCredential
 		}
-		return dto.ForgetPWRes{}, helper.ErrInternalServer
+		return dto.ForgetPWRes{}, err
 	}
 	key := "reset_pw_token"
 	token := "test"
@@ -35,16 +35,16 @@ func (ru *resetPWUsecase) ForgetPW(ctx context.Context, email string) (dto.Forge
 
 	op1 := ru.rdb.Set(ctx, key, token, ttl)
 	if err := op1.Err(); err != nil {
-		return dto.ForgetPWRes{}, helper.ErrInternalServer
+		return dto.ForgetPWRes{}, err
 	}
 
 	op2 := ru.rdb.Get(context.Background(), key)
 	if err := op2.Err(); err != nil {
-		return dto.ForgetPWRes{}, helper.ErrInternalServer
+		return dto.ForgetPWRes{}, err
 	}
 	res, err := op2.Result()
 	if err != nil {
-		return dto.ForgetPWRes{}, helper.ErrInternalServer
+		return dto.ForgetPWRes{}, err
 	}
 	return dto.ForgetPWRes{
 		Token: res,

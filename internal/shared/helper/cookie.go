@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetCookieAfterLogin(c *gin.Context, config dependency.Config, accessToken, refreshToken string) {
+func SetCookieAuthToken(c *gin.Context, config dependency.Config, accessToken, refreshToken string) {
 	accessTokenCookieExp := int(config.Jwt.AccessTokenExpiration) * 60
 	refreshTokenCookieExp := int(config.Jwt.RefreshTokenExpiration) * 60
 

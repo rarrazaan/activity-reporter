@@ -29,7 +29,7 @@ func (pu *photoUsecase) PostPhoto(ctx context.Context, photo *model.Photo) (*mon
 	photo.CreatedAt = time.Now()
 	res, err := pu.photoRepo.AddPhoto(ctx, photo)
 	if err != nil {
-		return nil, helper.ErrInternalServer
+		return nil, err
 	}
 	return res, nil
 }
