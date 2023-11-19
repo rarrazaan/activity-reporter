@@ -24,6 +24,7 @@ type (
 type JwtTokenizer interface {
 	GenerateAccessToken(user dto.UserTokenDTO, config dependency.Config) (*string, error)
 	GenerateRefreshToken(config dependency.Config) (*string, error)
+	ValidateRefreshToken(refreshToken string, config dependency.Config) (*jwt.Token, error)
 }
 
 type jwtTokenizer struct{}
@@ -132,7 +133,7 @@ func ValidateAccessToken(generateToken string, config dependency.Config) (*jwt.T
 	return token, nil
 }
 
-func ValidateRefreshToken(refreshToken string, config dependency.Config) (*jwt.Token, error) {
+func (j *jwtTokenizer) ValidateRefreshToken(refreshToken string, config dependency.Config) (*jwt.Token, error) {
 	var computeFunction jwt.Keyfunc = func(t *jwt.Token) (interface{}, error) {
 		_, ok := t.Method.(*jwt.SigningMethodHMAC)
 		if !ok {

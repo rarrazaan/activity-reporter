@@ -13,7 +13,7 @@ import (
 type (
 	RedisRepo interface {
 		SetRefreshToken(ctx context.Context, rToken string, userID int64) error
-		GetUserIDByRefreshToken(ctx context.Context, rToken string, userID int64) (*int64, error)
+		GetUserIDByRefreshToken(ctx context.Context, rToken string) (*int64, error)
 	}
 	redisRepo struct {
 		cfg dependency.Config
@@ -21,7 +21,7 @@ type (
 	}
 )
 
-func (r *redisRepo) GetUserIDByRefreshToken(ctx context.Context, rToken string, userID int64) (*int64, error) {
+func (r *redisRepo) GetUserIDByRefreshToken(ctx context.Context, rToken string) (*int64, error) {
 	key := fmt.Sprintf(constant.RedisRefreshTokenTemplate, rToken)
 
 	cmd := r.rd.Get(ctx, key)
