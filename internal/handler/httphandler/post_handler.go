@@ -2,7 +2,7 @@ package httphandler
 
 import (
 	"fmt"
-	"mini-socmed/internal/constant"
+	"mini-socmed/internal/cons"
 	"mini-socmed/internal/dependency"
 	"mini-socmed/internal/middleware"
 	"mini-socmed/internal/model"
@@ -29,10 +29,10 @@ func (h PostHandler) PostPhoto(c *gin.Context) {
 		return
 	}
 	post := &model.Photo{
-		ID: fmt.Sprintf(constant.PhotoIDTempate, userID, h.rString.RandStringBytesMaskImprSrcSB()),
+		ID:       fmt.Sprintf(cons.PhotoIDTempate, userID, h.rString.RandStringBytesMaskImprSrcSB()),
 		ImageUrl: req.ImageUrl,
-		Caption: req.Caption,
-		UserID: userID,
+		Caption:  req.Caption,
+		UserID:   userID,
 	}
 	res, err := h.puc.PostPhoto(c, post)
 	if err != nil {

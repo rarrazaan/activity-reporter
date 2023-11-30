@@ -1,9 +1,10 @@
 package helper
 
 import (
-	"mini-socmed/internal/constant"
+	"mini-socmed/internal/cons"
 	"mini-socmed/internal/dependency"
 	"mini-socmed/internal/shared/dto"
+	"mini-socmed/internal/shared/errmsg"
 	"time"
 
 	jwt "github.com/golang-jwt/jwt/v4"
@@ -12,12 +13,12 @@ import (
 type (
 	AccessJWTClaim struct {
 		jwt.RegisteredClaims
-		UserId    int64              `json:"user_id"`
-		TokenType constant.TokenType `json:"token_type"`
+		UserId    int64          `json:"user_id"`
+		TokenType cons.TokenType `json:"token_type"`
 	}
 	RefreshJWTClaim struct {
 		jwt.RegisteredClaims
-		TokenType constant.TokenType `json:"token_type"`
+		TokenType cons.TokenType `json:"token_type"`
 	}
 )
 
@@ -36,11 +37,11 @@ func NewJwtTokenizer() JwtTokenizer {
 func (c AccessJWTClaim) Valid() error {
 	now := time.Now()
 	if !c.VerifyExpiresAt(now, true) {
-		return ErrAccessTokenExpired
+		return errmsg.ErrAccessTokenExpired
 	}
 
-	if c.TokenType != constant.AccessTokenType {
-		return ErrInvalidTokenType
+	if c.TokenType != cons.AccessTokenType {
+		return errmsg.ErrInvalidTokenType
 	}
 
 	return nil
@@ -49,11 +50,11 @@ func (c AccessJWTClaim) Valid() error {
 func (c RefreshJWTClaim) Valid() error {
 	now := time.Now()
 	if !c.VerifyExpiresAt(now, true) {
-		return ErrRefreshTokenExpired
+		return errmsg.ErrRefreshTokenExpired
 	}
 
-	if c.TokenType != constant.RefreshTokenType {
-		return ErrInvalidTokenType
+	if c.TokenType != cons.RefreshTokenType {
+		return errmsg.ErrInvalidTokenType
 	}
 
 	return nil
@@ -72,10 +73,10 @@ func (j *jwtTokenizer) GenerateAccessToken(user dto.UserTokenDTO, config depende
 	claims := AccessJWTClaim{
 		RegisteredClaims: registeredClaims,
 		UserId:           user.ID,
-		TokenType:        constant.AccessTokenType,
+		TokenType:        cons.AccessTokenType,
 	}
 
-	accessToken := jwt.NewWithClaims(constant.JWTSigningMethod, claims)
+	accessToken := jwt.NewWithClaims(cons.JWTSigningMethod, claims)
 	t, err := accessToken.SignedString([]byte(config.Jwt.JWTSecret))
 	if err != nil {
 		return nil, err
@@ -96,10 +97,10 @@ func (j *jwtTokenizer) GenerateRefreshToken(config dependency.Config) (*string, 
 
 	claims := RefreshJWTClaim{
 		RegisteredClaims: registeredClaims,
-		TokenType:        constant.RefreshTokenType,
+		TokenType:        cons.RefreshTokenType,
 	}
 
-	refreshToken := jwt.NewWithClaims(constant.JWTSigningMethod, claims)
+	refreshToken := jwt.NewWithClaims(cons.JWTSigningMethod, claims)
 
 	t, err := refreshToken.SignedString([]byte(config.Jwt.JWTSecret))
 	if err != nil {
@@ -113,7 +114,7 @@ func ValidateAccessToken(generateToken string, config dependency.Config) (*jwt.T
 	computeFunction := func(t *jwt.Token) (interface{}, error) {
 		_, ok := t.Method.(*jwt.SigningMethodHMAC)
 		if !ok {
-			return nil, ErrInvalidJWTToken
+			return nil, errmsg.ErrInvalidJWTToken
 		}
 
 		return []byte(config.Jwt.JWTSecret), nil
@@ -122,7 +123,7 @@ func ValidateAccessToken(generateToken string, config dependency.Config) (*jwt.T
 	token, err := jwt.ParseWithClaims(generateToken, new(AccessJWTClaim), computeFunction)
 	if err != nil {
 		if e, ok := err.(*jwt.ValidationError); ok {
-			if e, ok := e.Inner.(*AppError); ok {
+			if e, ok := e.Inner.(*errmsg.AppError); ok {
 				return nil, e
 			}
 
@@ -137,7 +138,7 @@ func (j *jwtTokenizer) ValidateRefreshToken(refreshToken string, config dependen
 	var computeFunction jwt.Keyfunc = func(t *jwt.Token) (interface{}, error) {
 		_, ok := t.Method.(*jwt.SigningMethodHMAC)
 		if !ok {
-			return nil, ErrInvalidJWTToken
+			return nil, errmsg.ErrInvalidJWTToken
 		}
 
 		return []byte(config.Jwt.JWTSecret), nil
@@ -147,7 +148,7 @@ func (j *jwtTokenizer) ValidateRefreshToken(refreshToken string, config dependen
 	token, err := jwt.ParseWithClaims(refreshToken, claim, computeFunction)
 	if err != nil {
 		if e, ok := err.(*jwt.ValidationError); ok {
-			if e, ok := e.Inner.(*AppError); ok {
+			if e, ok := e.Inner.(*errmsg.AppError); ok {
 				return nil, e
 			}
 
@@ -163,5 +164,5 @@ func ParseAccessTokenClaim(accessToken string, config dependency.Config) (*Acces
 	if t, ok := token.Claims.(*AccessJWTClaim); ok {
 		return t, nil
 	}
-	return nil, ErrInvalidJWTToken
+	return nil, errmsg.ErrInvalidJWTToken
 }

@@ -7,11 +7,12 @@ import (
 )
 
 type User struct {
-	ID       int64  `gorm:"primarykey"`
-	Name     string `gorm:"type:varchar;not null"`
-	Username string `gorm:"type:varchar;not null;index:idx_username,unique"`
-	Email    string `gorm:"type:varchar;not null;index:idx_email,unique"`
-	Password string `gorm:"type:varchar; not null"`
+	ID              int64  `gorm:"primarykey"`
+	Name            string `gorm:"type:varchar;not null"`
+	Username        string `gorm:"type:varchar;not null;index:idx_username,unique"`
+	Email           string `gorm:"type:varchar;not null;index:idx_email,unique"`
+	EmailIsVerified bool   `gorm:"not null;default:FALSE"`
+	Password        string `gorm:"type:varchar; not null"`
 
 	Followers  []User     `gorm:"foreignKey:ID"`
 	Activities []Activity `gorm:"foreignKey:UserID"`

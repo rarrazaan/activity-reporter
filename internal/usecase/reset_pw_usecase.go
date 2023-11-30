@@ -5,7 +5,7 @@ import (
 	"errors"
 	"mini-socmed/internal/repository"
 	"mini-socmed/internal/shared/dto"
-	"mini-socmed/internal/shared/helper"
+	"mini-socmed/internal/shared/errmsg"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -24,8 +24,8 @@ type (
 func (ru *resetPWUsecase) ForgetPW(ctx context.Context, email string) (dto.ForgetPWRes, error) {
 	_, err := ru.userRepo.FindUserByIdentifier(ctx, email)
 	if err != nil {
-		if errors.Is(err, helper.ErrUserNotFound) {
-			return dto.ForgetPWRes{}, helper.ErrCredential
+		if errors.Is(err, errmsg.ErrUserNotFound) {
+			return dto.ForgetPWRes{}, errmsg.ErrCredential
 		}
 		return dto.ForgetPWRes{}, err
 	}

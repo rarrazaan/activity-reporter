@@ -4,48 +4,60 @@ import (
 	"context"
 	"errors"
 	"mini-socmed/internal/model"
-	"mini-socmed/internal/shared/helper"
+	"mini-socmed/internal/shared/errmsg"
 
 	"gorm.io/gorm"
 )
 
 type (
-	usereRepo struct {
+	userRepo struct {
 		db *gorm.DB
 	}
 	UserRepo interface {
 		CreateUser(ctx context.Context, user *model.User) (*model.User, error)
 		FindUserByIdentifier(ctx context.Context, email string) (*model.User, error)
 		FirstUserByID(ctx context.Context, userID int64) (*model.User, error)
+		UpdateVerifiedEmail(ctx context.Context, userID int64) (*model.User, error)
 	}
 )
 
-func (ur *usereRepo) CreateUser(ctx context.Context, user *model.User) (*model.User, error) {
-	if err := ur.db.WithContext(ctx).Create(user).Error; err != nil {
+func (r *userRepo) CreateUser(ctx context.Context, user *model.User) (*model.User, error) {
+	if err := r.db.WithContext(ctx).Create(user).Error; err != nil {
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
-			return nil, helper.ErrDuplicateKey
+			return nil, errmsg.ErrDuplicateKey
 		}
 		return nil, err
 	}
 	return user, nil
 }
 
-func (ur *usereRepo) FindUserByIdentifier(ctx context.Context, email string) (*model.User, error) {
+func (r *userRepo) FindUserByIdentifier(ctx context.Context, email string) (*model.User, error) {
 	user := new(model.User)
-	if err := ur.db.WithContext(ctx).Where("email = ?", email).First(user).Error; err != nil {
+	if err := r.db.WithContext(ctx).Where("email = ?", email).First(user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, helper.ErrUserNotFound
+			return nil, errmsg.ErrUserNotFound
 		}
 		return nil, err
 	}
 	return user, nil
 }
 
-func (ur *usereRepo) FirstUserByID(ctx context.Context, userID int64) (*model.User, error) {
+func (r *userRepo) UpdateVerifiedEmail(ctx context.Context, userID int64) (*model.User, error) {
 	user := new(model.User)
-	if err := ur.db.WithContext(ctx).First(user, userID).Error; err != nil {
+	if err := r.db.Model(user).Where("email_is_verified = FALSE").Update("email_is_verified", "TRUE").Error; err != nil {
+		if errors.Is(err, gorm.ErrNotImplemented) {
+			return nil, errmsg.ErrUserVerifyEmail
+		}
+		return nil, err
+	}
+	return user, nil
+}
+
+func (r *userRepo) FirstUserByID(ctx context.Context, userID int64) (*model.User, error) {
+	user := new(model.User)
+	if err := r.db.WithContext(ctx).First(user, userID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, helper.ErrUserNotFound
+			return nil, errmsg.ErrUserNotFound
 		}
 		return nil, err
 	}
@@ -53,7 +65,7 @@ func (ur *usereRepo) FirstUserByID(ctx context.Context, userID int64) (*model.Us
 }
 
 func NewUserRepo(db *gorm.DB) UserRepo {
-	return &usereRepo{
+	return &userRepo{
 		db: db,
 	}
 }

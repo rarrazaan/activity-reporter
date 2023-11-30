@@ -1,4 +1,4 @@
-package constant
+package cons
 
 import "github.com/golang-jwt/jwt/v4"
 

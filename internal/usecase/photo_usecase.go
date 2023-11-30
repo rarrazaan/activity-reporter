@@ -4,7 +4,7 @@ import (
 	"context"
 	"mini-socmed/internal/model"
 	"mini-socmed/internal/repository"
-	"mini-socmed/internal/shared/helper"
+	"mini-socmed/internal/shared/errmsg"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -23,7 +23,7 @@ type (
 func (pu *photoUsecase) PostPhoto(ctx context.Context, photo *model.Photo) (*mongo.InsertOneResult, error) {
 	user, err := pu.userRepo.FirstUserByID(ctx, photo.UserID)
 	if err != nil {
-		return nil, helper.ErrUserNotFound
+		return nil, errmsg.ErrUserNotFound
 	}
 	photo.Username = user.Name
 	photo.CreatedAt = time.Now()

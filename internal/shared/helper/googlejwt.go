@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"mini-socmed/internal/shared/errmsg"
 	"net/http"
 	"time"
 
@@ -77,14 +78,14 @@ func (g *googleJWT) ValidateGoogleJWT(tokenString string) (GoogleClaims, error) 
 
 	claims, ok := token.Claims.(*GoogleClaims)
 	if !ok {
-		return GoogleClaims{}, ErrInvalidJWTToken
+		return GoogleClaims{}, errmsg.ErrInvalidJWTToken
 	}
 	if claims.Issuer != "accounts.google.com" && claims.Issuer != "https://accounts.google.com" {
-		return GoogleClaims{}, ErrInvalidJWTToken
+		return GoogleClaims{}, errmsg.ErrInvalidJWTToken
 	}
 	if claims.ExpiresAt.Unix() < time.Now().UTC().Unix() {
 
-		return GoogleClaims{}, ErrInvalidJWTToken
+		return GoogleClaims{}, errmsg.ErrInvalidJWTToken
 
 	}
 

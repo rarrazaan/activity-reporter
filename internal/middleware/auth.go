@@ -1,8 +1,9 @@
 package middleware
 
 import (
-	"mini-socmed/internal/constant"
+	"mini-socmed/internal/cons"
 	"mini-socmed/internal/dependency"
+	"mini-socmed/internal/shared/errmsg"
 	"mini-socmed/internal/shared/helper"
 	"net/http"
 
@@ -12,31 +13,31 @@ import (
 func Auth(config dependency.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if config.App.EnvMode == "testing" {
-			c.Set(constant.CtxUserId, int64(1))
+			c.Set(cons.CtxUserId, int64(1))
 			c.Next()
 			return
 		}
 
-		accessTokenStr, err := c.Cookie(constant.AccessTokenCookieName)
+		accessTokenStr, err := c.Cookie(cons.AccessTokenCookieName)
 		if err != nil {
-			e := helper.ErrAccessTokenExpired
+			e := errmsg.ErrAccessTokenExpired
 			c.AbortWithStatusJSON(mapErrorCode[e.Code], e.ToErrorDto())
 			return
 		}
 
 		token, err := helper.ValidateAccessToken(accessTokenStr, config)
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, helper.ErrInvalidJWTToken.ToErrorDto())
+			c.AbortWithStatusJSON(http.StatusUnauthorized, errmsg.ErrInvalidJWTToken.ToErrorDto())
 			return
 		}
 
 		claims, ok := token.Claims.(*helper.AccessJWTClaim)
 		if !ok || !token.Valid {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, helper.ErrInvalidJWTToken.ToErrorDto())
+			c.AbortWithStatusJSON(http.StatusUnauthorized, errmsg.ErrInvalidJWTToken.ToErrorDto())
 			return
 		}
 
-		c.Set(constant.CtxUserId, claims.UserId)
+		c.Set(cons.CtxUserId, claims.UserId)
 
 		c.Next()
 	}

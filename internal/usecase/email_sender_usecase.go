@@ -2,7 +2,7 @@ package usecase
 
 import (
 	"fmt"
-	"mini-socmed/internal/constant"
+	"mini-socmed/internal/cons"
 	"net/smtp"
 
 	"github.com/jordan-wright/email"
@@ -10,7 +10,7 @@ import (
 
 type (
 	EmailSenderUsecase interface {
-		SendEmail(subject, content, to string) error
+		SendEmail(subject cons.SubjectEmail, content cons.ContentEmailType, to string) error
 	}
 	emailSenderUsecase struct {
 		name         string
@@ -19,15 +19,15 @@ type (
 	}
 )
 
-func (e *emailSenderUsecase) SendEmail(subject string, content string, to string) error {
+func (e *emailSenderUsecase) SendEmail(subject cons.SubjectEmail, content cons.ContentEmailType, to string) error {
 	mail := email.NewEmail()
 	mail.From = fmt.Sprintf("%s <%s>", e.name, e.fromEmail)
-	mail.Subject = subject
+	mail.Subject = string(subject)
 	mail.HTML = []byte(content)
 	mail.To = []string{to}
 
-	smtpAuth := smtp.PlainAuth("", e.fromEmail, e.fromPassword, constant.SmtpAuthAddress)
-	if err := mail.Send(constant.SmtpServerAddress, smtpAuth); err != nil {
+	smtpAuth := smtp.PlainAuth("", e.fromEmail, e.fromPassword, cons.SmtpAuthAddress)
+	if err := mail.Send(cons.SmtpServerAddress, smtpAuth); err != nil {
 		return err
 	}
 	return nil

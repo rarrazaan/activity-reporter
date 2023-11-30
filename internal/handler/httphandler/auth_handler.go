@@ -1,9 +1,10 @@
 package httphandler
 
 import (
-	"mini-socmed/internal/constant"
+	"mini-socmed/internal/cons"
 	"mini-socmed/internal/dependency"
 	"mini-socmed/internal/shared/dto"
+	"mini-socmed/internal/shared/errmsg"
 	"mini-socmed/internal/shared/helper"
 	"mini-socmed/internal/usecase"
 	"net/http"
@@ -46,9 +47,9 @@ func (h AuthHandler) login(c *gin.Context) {
 }
 
 func (h AuthHandler) refreshToken(c *gin.Context) {
-	rToken, err := c.Cookie(constant.RefreshTokenCookieName)
+	rToken, err := c.Cookie(cons.RefreshTokenCookieName)
 	if err != nil {
-		c.Error(helper.ErrRefreshTokenExpired)
+		c.Error(errmsg.ErrRefreshTokenExpired)
 		return
 	}
 
@@ -60,7 +61,7 @@ func (h AuthHandler) refreshToken(c *gin.Context) {
 
 	aTokenCookieExp := int(h.config.Jwt.AccessTokenExpiration) * 60
 
-	c.SetCookie(constant.AccessTokenCookieName, *aToken, aTokenCookieExp, "/", "", false, true)
+	c.SetCookie(cons.AccessTokenCookieName, *aToken, aTokenCookieExp, "/", "", false, true)
 	c.Status(http.StatusOK)
 }
 

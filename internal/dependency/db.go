@@ -2,14 +2,14 @@ package dependency
 
 import (
 	"fmt"
-	"mini-socmed/internal/constant"
+	"mini-socmed/internal/cons"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 func ConnectDB(config Config, logger Logger) *gorm.DB {
-	dsn := fmt.Sprintf(constant.ConnectionStringTemplate,
+	dsn := fmt.Sprintf(cons.ConnectionStringTemplate,
 		config.PostgreDB.DBHost,
 		config.PostgreDB.DBUser,
 		config.PostgreDB.DBPass,

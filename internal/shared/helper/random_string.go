@@ -2,7 +2,7 @@ package helper
 
 import (
 	"math/rand"
-	"mini-socmed/internal/constant"
+	"mini-socmed/internal/cons"
 	"strings"
 	"time"
 )
@@ -25,9 +25,9 @@ var src = rand.NewSource(time.Now().UnixNano())
 
 func (s *randomString) RandStringBytesMaskImprSrcSB() string {
 	sb := strings.Builder{}
-	sb.Grow(constant.PostIDStringLength)
+	sb.Grow(cons.PostIDStringLength)
 	// A src.Int63() generates 63 random bits, enough for letterIdxMax characters!
-	for i, cache, remain := constant.PostIDStringLength-1, src.Int63(), letterIdxMax; i >= 0; {
+	for i, cache, remain := cons.PostIDStringLength-1, src.Int63(), letterIdxMax; i >= 0; {
 		if remain == 0 {
 			cache, remain = src.Int63(), letterIdxMax
 		}
