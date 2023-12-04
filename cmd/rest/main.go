@@ -28,6 +28,7 @@ func main() {
 	crypto := helper.NewAppCrypto()
 	jwt := helper.NewJwtTokenizer()
 	rsting := helper.NewRandomString()
+	uuidGen := helper.NewUuidGenerator()
 
-	httpserver.InitApp(db, rc, mdb, *config, logger, crypto, jwt, rsting)
+	httpserver.InitApp(db, rc, mdb, *config, logger, crypto, jwt, rsting, uuidGen)
 }

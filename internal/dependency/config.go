@@ -4,13 +4,14 @@ import "github.com/ilyakaznacheev/cleanenv"
 
 type (
 	Config struct {
-		App        app
-		Rest       rest
-		PostgreDB  postgreDB
-		MongoDB    mongoDB
-		RedisCache redisconfig
-		Jwt        jwt
-		Email      email
+		App         app
+		Rest        rest
+		PostgreDB   postgreDB
+		MongoDB     mongoDB
+		RedisCache  redisconfig
+		Jwt         jwt
+		Email       email
+		VerifyEmail verifyEmail
 	}
 
 	app struct {
@@ -55,6 +56,9 @@ type (
 		SenderName     string `env:"EMAIL_SENDER_NAME"`
 		SenderAddress  string `env:"EMAIL_SENDER_ADDRESS"`
 		SenderPassword string `env:"EMAIL_SENDER_PASSWORD"`
+	}
+	verifyEmail struct {
+		VerifyEmailCodeExpiration uint `env:"VERIFY_EMAIL_EXPIRATION"`
 	}
 )
 

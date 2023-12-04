@@ -10,7 +10,7 @@ import (
 
 type (
 	EmailSenderUsecase interface {
-		SendEmail(subject cons.SubjectEmail, content cons.ContentEmailType, to string) error
+		SendEmail(subject cons.SubjectEmail, content string, to string) error
 	}
 	emailSenderUsecase struct {
 		name         string
@@ -19,7 +19,7 @@ type (
 	}
 )
 
-func (e *emailSenderUsecase) SendEmail(subject cons.SubjectEmail, content cons.ContentEmailType, to string) error {
+func (e *emailSenderUsecase) SendEmail(subject cons.SubjectEmail, content string, to string) error {
 	mail := email.NewEmail()
 	mail.From = fmt.Sprintf("%s <%s>", e.name, e.fromEmail)
 	mail.Subject = string(subject)

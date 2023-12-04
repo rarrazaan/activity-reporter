@@ -32,13 +32,14 @@ type (
 		crypto  helper.AppCrypto
 		jwt     helper.JwtTokenizer
 		rstring helper.RandomString
+		uuidGen helper.UuidGenerator
 		repos   repositories
 		ucs     usecases
 	}
 	repositories struct {
-		userRepo      repository.UserRepo
-		photoRepo     repository.PhotoRepo
-		redisRepo     repository.RedisRepo
+		userRepo  repository.UserRepo
+		photoRepo repository.PhotoRepo
+		redisRepo repository.RedisRepo
 	}
 	usecases struct {
 		authUsecase        usecase.AuthUsecase
@@ -55,20 +56,22 @@ func (s *server) initRepository(db *gorm.DB, rd *redis.Client, mdb *mongo.Databa
 }
 
 func (s *server) initUsecase(rd *redis.Client) {
+	s.ucs.emailSenderUsecase = usecase.NewEmailSenderUsecase(
+		s.cfg.Email.SenderName,
+		s.cfg.Email.SenderAddress,
+		s.cfg.Email.SenderPassword,
+	)
 	s.ucs.authUsecase = usecase.NewUserUsecase(
 		s.repos.userRepo,
 		s.repos.redisRepo,
 		s.crypto,
 		s.jwt,
 		s.cfg,
+		s.uuidGen,
+		s.ucs.emailSenderUsecase,
 	)
 	s.ucs.photoUsecase = usecase.NewPhotoUsecase(s.repos.photoRepo, s.repos.userRepo)
 	s.ucs.resetPWUsecase = usecase.NewResetPWUsecase(rd, s.repos.userRepo)
-	s.ucs.emailSenderUsecase = usecase.NewEmailSenderUsecase(
-		s.cfg.Email.SenderName,
-		s.cfg.Email.SenderAddress,
-		s.cfg.Email.SenderPassword,
-	)
 }
 
 func (s *server) initHTTPHandler(logger dependency.Logger, config dependency.Config) {
@@ -133,6 +136,7 @@ func InitApp(
 	crypto helper.AppCrypto,
 	jwt helper.JwtTokenizer,
 	rstring helper.RandomString,
+	uuidGen helper.UuidGenerator,
 ) {
 
 	s := server{
@@ -141,6 +145,7 @@ func InitApp(
 		crypto:  crypto,
 		jwt:     jwt,
 		rstring: rstring,
+		uuidGen: uuidGen,
 	}
 
 	s.initRepository(db, rc, mdb, cfg)

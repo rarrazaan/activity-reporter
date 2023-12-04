@@ -65,12 +65,22 @@ func (h AuthHandler) refreshToken(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
+func (h AuthHandler) verifyEmail(c *gin.Context) {
+	code := c.Query("code")
+	if err := h.auc.VerifyEmail(c, code); err != nil {
+		c.Error(err)
+		return
+	}
+	c.Status(http.StatusOK)
+}
+
 func (h AuthHandler) Route(r *gin.Engine) {
 	r.
 		Group("/auth").
 		POST("/register", h.register).
 		POST("/login", h.login).
-		POST("/refresh-token", h.refreshToken)
+		POST("/refresh-token", h.refreshToken).
+		GET("/verify-email", h.verifyEmail)
 }
 
 func NewAuthHandler(auc usecase.AuthUsecase, config dependency.Config) *AuthHandler {

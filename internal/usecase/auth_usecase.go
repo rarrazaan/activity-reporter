@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"errors"
+	"fmt"
 	"mini-socmed/internal/cons"
 	"mini-socmed/internal/dependency"
 	"mini-socmed/internal/model"
@@ -18,6 +19,7 @@ type (
 	authUsecase struct {
 		crypto    helper.AppCrypto
 		jwt       helper.JwtTokenizer
+		uuid      helper.UuidGenerator
 		config    dependency.Config
 		userRepo  repository.UserRepo
 		redisRepo repository.RedisRepo
@@ -28,6 +30,7 @@ type (
 		Register(ctx context.Context, user *model.User) (*dto.UserRes, error)
 		Login(ctx context.Context, user *model.User) (*dto.LoginToken, error)
 		RefreshAccessToken(ctx context.Context, rToken string) (*string, error)
+		VerifyEmail(ctx context.Context, code string) error
 	}
 )
 
@@ -39,7 +42,12 @@ func (au *authUsecase) Register(ctx context.Context, user *model.User) (*dto.Use
 		}
 		return nil, err
 	}
-	if err := au.euc.SendEmail(cons.SubjectVerificationEmail, cons.VerificationEmailContent, user.Email); err != nil {
+	code := au.uuid.GenerateUUID()
+	if err := au.redisRepo.SetVerifiyEmail(ctx, code, res.ID); err != nil {
+		return nil, err
+	}
+	content := fmt.Sprintf(cons.VerificationEmailContent, "http://localhost:8080/auth", code)
+	if err := au.euc.SendEmail(cons.SubjectVerificationEmail, content, user.Email); err != nil {
 		return nil, err
 	}
 	return dto.ConvUserToRes(res), nil
@@ -91,12 +99,28 @@ func (au *authUsecase) RefreshAccessToken(ctx context.Context, rToken string) (*
 	return aToken, nil
 }
 
+func (au *authUsecase) VerifyEmail(ctx context.Context, code string) error {
+	userID, err := au.redisRepo.GetUserIDByVerifiyEmail(ctx, code)
+	if err != nil {
+		return err
+	}
+	if _, err := au.userRepo.UpdateVerifiedEmail(ctx, *userID); err != nil {
+		return err
+	}
+	if err := au.redisRepo.DeleteVerifiyEmail(ctx, code); err != nil {
+		return err
+	}
+	return nil
+}
+
 func NewUserUsecase(
 	userRepo repository.UserRepo,
 	redisRepo repository.RedisRepo,
 	crypto helper.AppCrypto,
 	jwt helper.JwtTokenizer,
 	config dependency.Config,
+	uuid helper.UuidGenerator,
+	euc EmailSenderUsecase,
 ) AuthUsecase {
 	return &authUsecase{
 		redisRepo: redisRepo,
@@ -104,5 +128,7 @@ func NewUserUsecase(
 		crypto:    crypto,
 		jwt:       jwt,
 		config:    config,
+		uuid:      uuid,
+		euc:       euc,
 	}
 }
